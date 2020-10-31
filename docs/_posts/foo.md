@@ -1,6 +1,5 @@
 ---
 layout: page
-title: FOO page
-parmalink: /foo
+title: Docker
 ---
 This is the foo page
