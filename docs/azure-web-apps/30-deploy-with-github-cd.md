@@ -5,7 +5,7 @@ title: Deploy NodeJS application from GitHub
 ## Deploy from GitHub with Continuous Deployment
 
 #### Create an Azure Web App
-- [ ] Create a resource group and default subsequent commands to group and location West US
+1.  Create a resource group and default subsequent commands to group and location West US
 
         $rg = 'webapp-demo-rg'
 
@@ -15,31 +15,31 @@ title: Deploy NodeJS application from GitHub
 
         az configure --defaults group=$rg location=$location
 
-- [ ] Create an Azure App Service Plan with FREE sku in the Linux platform
+1.  Create an Azure App Service Plan with FREE sku in the Linux platform
  
         $planname = 'webapp-demo-asplan'
 
         az appservice plan create --name $planname --sku FREE --is-linux
 
-- [ ] Create the web app using the new app service plan, with a unique name and running a version of node
+1.  Create the web app using the new app service plan, with a unique name and running a version of node
 
         $appname = "webapp-demo-app-$(Get-Random)"
 
         az webapp create --name $appname --plan $planname --% --runtime "node|12-lts"
 
-- [ ] Test the new web app by navigating to the placeholder website
+1.  Test the new web app by navigating to the placeholder website
 
         az webapp browse --name $appname
 
 #### Create a small NodeJS app
 
-- [ ] Create a working folder for NodeJS website.
+1.  Create a working folder for NodeJS website.
 
         mkdir www-app
 
         cd www-app
 
-- [ ] Create <code>package.json</code> with the following content.
+1.  Create <code>package.json</code> with the following content.
 
         {
             "scripts": {
@@ -47,7 +47,7 @@ title: Deploy NodeJS application from GitHub
             }
         }
 
-- [ ] Create <code>app.js</code> with the following content. 
+1.  Create <code>app.js</code> with the following content. 
 
         const http = require('http');
 
@@ -60,15 +60,15 @@ title: Deploy NodeJS application from GitHub
 
         server.listen(port);
 
-- [ ] Start the NodeJs app locally and test by navigating to http://localhost:1337 with a browser.
+1.  Start the NodeJs app locally and test by navigating to http://localhost:1337 with a browser.
 
         npm start
 
 #### Setup a GitHub repository 
 
-- [ ] Go to your GitHub account and [create a public repository](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/create-a-repo) with name <code>www-app</code>.
+1.  Go to your GitHub account and [create a public repository](https://docs.github.com/en/free-pro-team@latest/github/getting-started-with-github/create-a-repo) with name <code>www-app</code>.
 
-- [ ] Setup a local git repository
+1.  Setup a local git repository
 
         git init
 
@@ -80,7 +80,7 @@ title: Deploy NodeJS application from GitHub
 
         git commit -m 'initial commit'
 
-- [ ] Link the local repository to GitHub remote repository.
+1.  Link the local repository to GitHub remote repository.
 
         git config credential.helper store
 
@@ -94,7 +94,7 @@ title: Deploy NodeJS application from GitHub
 
 #### Deploy web app
 
-- [ ] From your GitHub account, [obtain a personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) with ONLY the following permissions granted.
+1.  From your GitHub account, [obtain a personal access token](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token) with ONLY the following permissions granted.
 
         write:repo_hook
 
@@ -104,13 +104,13 @@ title: Deploy NodeJS application from GitHub
 
         $token = {personal access token}
 
-- [ ] Deploy the source code from the GitHub.
+1.  Deploy the source code from the GitHub.
 
         az webapp deployment source config --name $appname `
                 --repo-url $repourl --branch master --git-token $token `
                 --verbose
 
-- [ ] Test the resulting site.
+1.  Test the resulting site.
             
         az webapp browse --name $appname
 
@@ -120,7 +120,7 @@ title: Deploy NodeJS application from GitHub
 
 #### Test the continuous deployment
 
-- [ ] Push a small change to the app
+1.  Push a small change to the app
 
         cp .\app.js .\app.js.old
 
@@ -132,7 +132,7 @@ title: Deploy NodeJS application from GitHub
 
         git push
 
-- [ ] Test the web app 
+1.  Test the web app 
 
         az webapp browse --name $appname
 
@@ -181,7 +181,7 @@ The following are typical log entry messages of a successful deployment.
 
 ## Clean up
 
-- [ ] Delete resources created in the group.
+1.  Delete resources created in the group.
 
         az group delete --yes
 
