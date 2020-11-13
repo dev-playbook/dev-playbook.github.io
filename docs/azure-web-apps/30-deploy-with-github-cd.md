@@ -165,7 +165,7 @@ To view the logs of historic deployments, you have two options.
 
         az group delete --yes
 
-1. Delete the <code>www-app</code> repository from you GitHub account.
+1. Delete the <code>www-app</code> repository and any personal access token you've created from you GitHub account.
 
 #### References
 
