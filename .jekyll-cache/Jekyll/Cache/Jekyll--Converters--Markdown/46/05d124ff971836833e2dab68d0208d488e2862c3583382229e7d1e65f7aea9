@@ -1,0 +1,47 @@
+I"0<h1 id="legacy-linking">Legacy Linking</h1>
+
+<p>This describes how to link containers using legacy linking.</p>
+
+<ol>
+  <li>
+    <p>pull amazon linux</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>start a interactive and detached linux container, and give it a name <code>my-server</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run -itd --name my-server amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>start another linux container named <code>my-client</code> and link it to <code>my-server</code>, with an alias <code>linux-server</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run -itd --name my-client `
+     --link my-server:linux-server `
+     amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Install iputils in order to do ping on <code>my-client</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker exec my-client yum -y install iputils
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The client can ping the server either thru the server’s name or alias</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker exec my-client ping my-server
+ docker exec my-client ping linux-server
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Cleanup</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker stop $(docker ps -q)
+ docker rm -f $(docker ps -a -q)
+</code></pre></div>    </div>
+  </li>
+</ol>
+:ET

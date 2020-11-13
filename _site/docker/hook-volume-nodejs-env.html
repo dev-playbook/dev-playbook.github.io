@@ -1,0 +1,85 @@
+<h1 id="hook-volume-to-a-nodejs-environment">Hook Volume To A NodeJs Environment</h1>
+
+<p>This describes the procedure on how to map a local nodejs development environment to a running container.</p>
+
+<ol>
+  <li>
+    <p>Start a command prompt and create a working directory</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> mkdir www-nodejs
+
+ cd www-nodejs
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Execute the following commands to create a node environment and install an express website to <code>/ExpressSite</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> npm install -g express-generator
+
+ npm init -y
+
+ npm install express
+
+ express ExpressSite --view=hbs
+
+ npm install
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Pull the latest node image</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull node:latest
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create file <code>env.list</code> with the following content.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> DEBUG=expresssite:*
+ PORT=1234
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Start a docker container</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run --name my-www -d`
+     -p 8080:1234 `
+     -w "/var/www" `
+     -v "$pwd/ExpressSite:/var/www" `
+     --env-file env.list
+     node:latest `
+     npm start
+</code></pre></div>    </div>
+
+    <p>This will run as follows</p>
+    <ul>
+      <li><code>-d</code> will execute the container at the background</li>
+      <li><code>-p</code> maps external port 8080 to internal port 1234</li>
+      <li><code>-w</code> sets the container’s working directory</li>
+      <li><code>-v</code> mounts the <code>./ExpressSite</code> folder to the container’s working directory</li>
+      <li>environment variables listed in <code>env.list</code> are applied</li>
+    </ul>
+
+    <p>Check the container is running</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker ps -a --filter name=my-www
+</code></pre></div>    </div>
+
+    <p>Inspect the container and the volumn mounts under <code>HostConfig.Mounts</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker inspect my-www | Out-Host -Paging
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Test the site</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Start-Process 'http://localhost:8080'
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Clean up. Stop and remove the container</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker stop my-www
+ docker rm my-www
+</code></pre></div>    </div>
+  </li>
+</ol>

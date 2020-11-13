@@ -1,5 +1,6 @@
 ---
 layout: page
+title:
 permalink: /docker/create-run-linux-image
 ---
 

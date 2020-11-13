@@ -1,0 +1,109 @@
+I"Z<h1 id="create-nodejs-site-with-dockerfile">Create NodeJs Site With Dockerfile</h1>
+
+<p>This shows the procedure on how to create and test an image of simple node js website using docker file.</p>
+
+<ol>
+  <li>
+    <p>Start a command prompt and create a working directory</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> mkdir www-nodejs
+
+ cd www-nodejs
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Execute the following commands to create a node environment and install an express website to <code>/ExpressSite</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> npm install -g express-generator
+
+ npm init -y
+
+ npm install express
+
+ express ExpressSite --view=hbs
+
+ SET DEBUG=expresssite:*
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create a Dockerfile file with the following contents.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> FROM node:latest
+ LABEL author="I did this"
+ ENV NODE_ENV=production
+ ENV PORT=3000
+ COPY ./ExpressSite /var/www
+ WORKDIR /var/www
+ RUN npm install
+ VOLUME ["/var/www"]
+ EXPOSE $PORT
+ ENTRYPOINT ["npm", "start"]
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Build an image from the working folder, with a given tag.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker build -t my-www-nodejs .
+</code></pre></div>    </div>
+
+    <p>The build will</p>
+    <ul>
+      <li>sets the base image to the latests image of <code>node</code></li>
+      <li>sets the container’s environment variables, including the port number</li>
+      <li>copy the contents of the working directory <code>./</code> to the container’s <code>/var/www</code></li>
+      <li>sets the container’s working director to <code>/var/www</code> and a volume will be mapped.</li>
+      <li>installs all dependencies using node package manager (npm)</li>
+      <li>exposes the port for traffic</li>
+      <li>set the entry point <code>npm start</code></li>
+      <li>tags the image to <code>my-www-nodejs</code></li>
+    </ul>
+
+    <p>Check if the images was created</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker images my-www-nodejs
+</code></pre></div>    </div>
+
+    <p>Inspect the image created</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker inspect my-www-nodejs
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Run a container from the image <code>my-www-nodejs</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run -d --name my-www -p 8080:3000 my-www-nodejs
+</code></pre></div>    </div>
+
+    <ul>
+      <li><code>-d</code> will execute the run in the background</li>
+      <li><code>my-www</code> is the container name</li>
+      <li>external port <code>8080</code> will map to the interal port <code>3000</code> as exposed by the docker file.</li>
+    </ul>
+
+    <p>Check that the container is running.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker ps -a filter=my-www
+</code></pre></div>    </div>
+
+    <p>Inspect the running container</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker inspect my-www
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>From the browser, navigate to <code>http://localhost:8080</code> to test the site.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Start-Process http://localhost:8080
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Cleanup. Stop the container and remove the container and image.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker stop my-www
+ docker rm -v my-www
+ docker rmi my-www-nodejs
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+:ET

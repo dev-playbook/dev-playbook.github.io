@@ -1,0 +1,56 @@
+<h1 id="tag-and-publish-image">Tag and Publish Image</h1>
+
+<p>This show an example on how to tag and publish an image, in this case an amazon linux image.</p>
+
+<ol>
+  <li>
+    <p>Login to your repository hub account.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker login -u [username] -p [password] -H [host]
+</code></pre></div>    </div>
+
+    <p>If <code>-H</code> is empty, then it defaults to <code>docker.io</code>.</p>
+  </li>
+  <li>
+    <p>Pull the latest <code>amazonlinux</code> image</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create <code>latest</code> and <code>v1</code> tag to the image <code>[username]/amazonlinux</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker tag amazonlinux:latest [username]/amazonlinux
+
+ docker tag amazonlinux:latest [username]/amazonlinux:v1
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Push the tags to the repository</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker push [username]/amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Remove the local images</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker rmi [username]/amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Pull the image tagged <code>latest</code> from the repository and confirm its existence</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull [username]/amazonlinux
+
+ docker images */amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Pull the image tagged <code>v1</code> from the repository and confirm its existence</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull [username]/amazonlinux:v1
+
+ docker images */amazonlinux
+</code></pre></div>    </div>
+  </li>
+</ol>

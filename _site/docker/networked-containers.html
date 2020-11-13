@@ -1,0 +1,53 @@
+<h1 id="networked-containers">Networked Containers</h1>
+
+<p>This describes how to enable communication between containers thru a network.</p>
+
+<ol>
+  <li>
+    <p>Pull amazon linux</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create custom bridge network <code>my-network</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker network create --driver bridge my-network
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Start 3 linux containers (<code>my-server-1</code> ,<code>my-server-2</code>, <code>my-client</code>), and add them to network <code>my-network</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> $cNames = "my-client", "my-server-1", "my-server-2"
+
+ $cNames.ForEach({docker run -itd --name $_ --net=my-network amazonlinux})
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>The network should now has 3 containers</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker network inspect my-network
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Install <code>iputils</code> to <code>my-client</code> in order to ping the other containers.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker exec my-client yum -y install iputils
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Container my-client should be able to ping the both servers</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker exec my-client ping my-server-1
+ docker exec my-client ping my-server-2
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Clean up</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker stop (docker ps -q)
+ docker rm -f (docker ps -a -q)
+ docker network rm my-network
+</code></pre></div>    </div>
+  </li>
+</ol>

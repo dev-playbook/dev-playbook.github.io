@@ -1,5 +1,6 @@
 ---
 layout: page
+title: Start an interactive Linux container
 permalink: /docker/start-linux-container
 ---
 

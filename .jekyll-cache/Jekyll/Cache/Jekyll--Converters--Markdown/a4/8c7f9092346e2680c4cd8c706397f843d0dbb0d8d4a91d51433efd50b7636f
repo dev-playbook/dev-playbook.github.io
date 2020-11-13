@@ -1,0 +1,227 @@
+I"&<h1 id="create-aspnet-with-dockerfile">Create ASP.net With Dockerfile</h1>
+
+<p>This shows the procedure on how to create and test an image of an asp.net website using a docker file.</p>
+
+<h2 id="set-up-development-environment">Set up development environment</h2>
+
+<ol>
+  <li>
+    <p>Start a command prompt and create a working directory</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> mkdir www-aspnet
+
+ cd www-aspnet
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>List the dotnet SDKs installed and ensure that version 3.1.* exists. Otherwise, you will need to install.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> dotnet --list-sdks
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Execute the following commands to create a asp.net environment in <code>/my-www</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> dotnet new mvc --name my-www
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create a Dockerfile <code>dev.dockerfile</code> with the following contents.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> FROM mcr.microsoft.com/dotnet/core/sdk:3.1
+ LABEL author="I did this"
+ ENV ENV ASPNETCORE_URLS=http://*:3000
+ ENV DOTNET_USE_POLLING_FILE_WATCHER=1
+ ENV ASPNETCORE_ENVIRONMENT=development
+ WORKDIR /app
+ ENTRYPOINT ["/bin/bash", "-c", "dotnet restore &amp;&amp; dotnet watch run"]
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Build an image from the working folder, with a given tag.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker build -f dev.dockerfile -t dev-www-aspnet .
+</code></pre></div>    </div>
+
+    <p>The build process is a follows</p>
+    <ul>
+      <li>sets the base image to the latests image of dotnet core sdk</li>
+      <li>sets the container’s environment variables</li>
+      <li>sets the container’s working directory to <code>/app</code></li>
+      <li>on entry, it restores the site’s package dependencies, runs the site and watches for any changes by the developer</li>
+      <li>names the image as <code>dev-www-aspnet</code></li>
+    </ul>
+
+    <p>Check if the images was created</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker images dev-www-aspnet
+</code></pre></div>    </div>
+
+    <p>Inspect the image created</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker inspect dev-www-aspnet | Out-Host -Paging
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Run a container from the image <code>dev-www-aspnet</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run --name dev-www -d -v "$(pwd)/my-www:/app" -p 8080:3000 dev-www-aspnet
+</code></pre></div>    </div>
+
+    <ul>
+      <li><code>-d</code> will execute the run in the background</li>
+      <li><code>dev-www</code> is the container name</li>
+      <li>external port <code>8080</code> will map to the interal port <code>3000</code>.</li>
+      <li>mounts <code>/my-www</code> to the container’s working directory</li>
+    </ul>
+
+    <p>Check that the container is running.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker ps -a filter=dev-www
+</code></pre></div>    </div>
+
+    <p>Inspect the running container</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker inspect dev-www
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>From the browser, navigate to <code>http://localhost:8080</code> to test the site.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Start-Process http://localhost:8080
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="production-build-setup-manual">Production Build Setup (Manual)</h2>
+
+<ol>
+  <li>
+    <p>Create a dockerfile <code>prod.dockerfile</code> with the following contents.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> FROM mcr.microsoft.com/dotnet/core/sdk:3.1 as build
+ WORKDIR /src
+ COPY ["my-www.csproj", "./"]
+ RUN dotnet restore ./my-www.csproj
+ COPY . .
+ WORKDIR /src/.
+ RUN dotnet build ./my-www.csproj -c Release -o /app/build
+
+ FROM build AS publish
+ RUN dotnet publish "./my-www.csproj" -c Release -o /app/publish
+
+ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 as final
+ WORKDIR /app
+ ENV ASPNETCORE_URLS=http://*:3000
+ EXPOSE 3000
+ COPY --from=publish /app .
+ VOLUME /app
+ ENTRYPOINT ["dotnet", "my-www.dll"]
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Build an image from the working folder, with a given name.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker build -f prod.dockerfile -t prod-www-aspnet .
+</code></pre></div>    </div>
+
+    <p>The build process is as follows</p>
+    <ul>
+      <li>creates <code>build</code> container with <code>/src</code> as its working directory.</li>
+      <li>copies the <code>csproj</code> file to the working directory and restores the dependencies.</li>
+      <li>copies the content of <code>/www-aspnet</code> to the working directory and calls <code>dotnet</code> to execute a <code>Release</code> build to <code>/app</code></li>
+      <li>create <code>final</code> container, whose
+        <ul>
+          <li>working directory as <code>/app</code></li>
+          <li>copies <code>/app</code> from the <code>publish</code> container to the working directory</li>
+          <li>exposes port <code>3000</code></li>
+          <li>sets the container’s entrypoint to the published dll</li>
+        </ul>
+      </li>
+    </ul>
+
+    <p>Check if the images was created</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker images prod-www-aspnet
+</code></pre></div>    </div>
+
+    <p>Inspect the image created</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker inspect prod-www-aspnet | Out-Host -Paging
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Run a container from the image <code>prod-www-aspnet</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run --name prod-www -d -p 8181:3000 proc-www-aspnet
+</code></pre></div>    </div>
+
+    <ul>
+      <li><code>-d</code> will execute the run in the background</li>
+      <li><code>prod-www</code> is the container name</li>
+      <li>external port <code>8181</code> maps to the interal port <code>3000</code> as exposed by the docker file.</li>
+    </ul>
+
+    <p>Check that the container is running.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker ps -a filter=prod-www
+</code></pre></div>    </div>
+
+    <p>Inspect the running container</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker inspect prod-www
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Open a browser and test the site.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Start-Process http://localhost:8181
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="production-build-setup-visual-studio-code">Production Build Setup (Visual Studio Code)</h2>
+
+<ol>
+  <li>Open Visual Studio Code, open the working folder.</li>
+  <li>Open the command pallette (<code>Ctrl-Shift-P</code>) and select <code>.NET: Generate Assets for Build and Debug</code>. Ensure that folder <code>.vscode</code>.</li>
+  <li>
+    <p>Ensure you have <code>Docker</code> extension installed, open the command pallete and select the following sequence to create <code>Dockerfile</code>.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Docker: Add Docker Files To Workspace
+ Application Platform: .NET: ASP.NET Core
+ Operating System: Linux
+ Ports: 5000
+ Include Docker Compose Files: No
+</code></pre></div>    </div>
+  </li>
+  <li>Delete <code>launchProperties</code> folder</li>
+  <li>
+    <p>From <code>Dockerfile</code> add this line under ‘<code>FROM base AS final</code>’</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ENV ASPNETCORE_URLS=http://*:5000
+</code></pre></div>    </div>
+  </li>
+  <li>Right click on <code>Dockerfile</code> and select <code>Build Image</code>. This creates image whose name is taken from the project file name (in this case <code>wwwaspnet</code>).</li>
+  <li>Open the Docker tool, right-click on image created and select run.</li>
+  <li>
+    <p>Open a browser and test the site.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> Start-Process http://localhost:5000
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<h2 id="clean-up">Clean Up</h2>
+
+<ol>
+  <li>
+    <p>Cleanup. Stop all containers and remove all containers and images.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker stop (docker ps -a -q)
+ docker rm (docker ps -a -q)
+ docker rmi (docker images *www*aspnet -q)
+</code></pre></div>    </div>
+  </li>
+</ol>
+:ET

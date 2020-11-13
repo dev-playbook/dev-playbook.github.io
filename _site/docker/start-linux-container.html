@@ -1,0 +1,47 @@
+<h1 id="start-an-interactive-linux-container">Start an interactive Linux container</h1>
+
+<p>This procedure describes how to start and interactive Linux container.</p>
+
+<ol>
+  <li>
+    <p>Pull the latest image of <code>amazonlinux</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull amazonlinux:latest
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Navigate to your working folder.</p>
+  </li>
+  <li>
+    <p>Create a container of the image</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run -it `
+   -v "$(pwd):/usr/$(hostname)"
+   --rm `
+   --name my-linux `
+   amazonlinux
+</code></pre></div>    </div>
+
+    <p>Where</p>
+    <ul>
+      <li><code>-i</code> and <code>-t</code> runs the container on an interactive terminal</li>
+      <li><code>-v</code> mounts the current working folder to the container directory <code>/usr/[hostname]</code>, where <code>hostname</code> is the machine name.</li>
+      <li><code>--rm</code> automatically removes the container on exit</li>
+    </ul>
+  </li>
+  <li>
+    <p>From the bash shell, navigate to <code>/usr/temp</code> to find the contents of the working folder.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> cd /usr/temp
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p><code>Ctrl-Shift-P</code> to detach from container. To reattach, execute the following:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker attach my-linux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>From the bash shell, enter <code>exit</code> to exit the container.</p>
+  </li>
+</ol>

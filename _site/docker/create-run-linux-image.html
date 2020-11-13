@@ -1,0 +1,71 @@
+<h1 id="create-and-run-a-linux-image">Create and run a Linux image</h1>
+
+<p>This procedure describes how to create, update and commit a linux container.</p>
+
+<ol>
+  <li>
+    <p>Pull the latest image of <code>amazonlinux</code></p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker pull amazonlinux:latest
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Create a container of the image</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run -it --name my-linux amazonlinux
+</code></pre></div>    </div>
+
+    <p>Where <code>-i</code> and <code>-t</code> runs the container on an interactive terminal</p>
+  </li>
+  <li>
+    <p>From the bash shell, execute the following in sequence:</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> yum -y update
+ export PS1="[\u]\w &gt;"
+ echo 'updated by me' &gt; update-msg.txt
+ exit
+</code></pre></div>    </div>
+
+    <p>This will</p>
+    <ul>
+      <li>update the OS</li>
+      <li>change the prompt format</li>
+      <li>save a text file with a small message</li>
+      <li>exit</li>
+    </ul>
+  </li>
+  <li>
+    <p>Commit container to image with a given name, and confirm that the new image exists.</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker commit my-linux my-amazonlinux
+
+ docker images my-amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Remove container</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker rm my-linux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Run container with image with given tag</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker run -it --name my-linux my-amazonlinux
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>From bash shell, find the small message, and exit</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> # cat update-msg.txt
+ # exit
+</code></pre></div>    </div>
+  </li>
+  <li>
+    <p>Stop and remove container, and remove tagged image</p>
+
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> docker rm my-linux
+ docker rmi my-amazonlinux
+</code></pre></div>    </div>
+  </li>
+</ol>
