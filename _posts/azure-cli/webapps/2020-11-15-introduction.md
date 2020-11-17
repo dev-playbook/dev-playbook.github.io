@@ -1,5 +1,5 @@
 ﻿---
-title: Introduction to Azure Web Apps
+title: Hello Azure Web Apps!
 index: 10
 layout: post
 date: 2020-11-15 15:23
@@ -7,13 +7,9 @@ categories:
     - Azure CLI
     - Azure WebApps
 permalink: azure-cli/webapps/introduction
-tags: [
-    az group create, 
-    az appservice plan create, 
-    az webapp create, 
-    az configure --defaults,
-    az webapp deployment source config
-]
+tags:
+    - devops
+    - paas
 ---
 
 Azure Web Apps is a platform to build an application in the cloud without the need to deploy, configure and maintain virtual machines. This introduction shows how to
@@ -102,7 +98,7 @@ To complete the tutorial, you will need the following.
     appname="webapp-demo-app-$RANDOM"
     az webapp create --name $appname --plan $planname --runtime "node|12-lts" --verbose
     ```
-    Results should return details including of the new app.
+    Results should return details of the new web app.
 
     > To recall the details of the web app.
     > ```
@@ -150,11 +146,6 @@ To complete the tutorial, you will need the following.
 
     The <code>--manual-integration</code> specifies no continuous deployment of source changes as this requires further setup and is out of scope.
 
-    > To deploy source changes.
-    > ```
-    > az webapp deployment source sync --verbose
-    > ```
-
 ## **Testing**
 
 1. Open the site with the deployed source and stream the server logs.
@@ -163,10 +154,9 @@ To complete the tutorial, you will need the following.
     az webapp browse --log
     ```
 
-    The NodeJs app exposes the environment variables and the HTTP request.
+    Expect a page with a _Hello World_ message and a list of key-value pairs from the environment variables and the HTTP request.
 
-
-    Refresh the page and expect INFO trace messages from the log stream.
+1. Refresh the browser and expect INFO trace messages from the log stream.
 
     > Alternatively, you can stream the server logs as follows.
     > ```
@@ -215,9 +205,8 @@ To complete the tutorial, you will need the following.
     > az webapp delete
     > ```
 
-#### References
+## **Further Reading**
 
-- [GitHub: node-js-env-reqest-var](https://github.com/dev-playbook/nodejs-env-request-vars)
 - [What is Kudu?](https://azure.microsoft.com/en-gb/resources/videos/what-is-kudu-with-david-ebbo/)
 - [Azure CLI configuration](https://docs.microsoft.com/en-us/cli/azure/azure-cli-configuration)
 - [App Service pricing](https://azure.microsoft.com/en-gb/pricing/details/app-service/windows/)
