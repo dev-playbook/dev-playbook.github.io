@@ -12,11 +12,11 @@ tags:
     - paas
 ---
 
-Azure Web Apps is a platform to build an application in the cloud without the need to deploy, configure and maintain virtual machines. This introduction shows how to
+Azure Web Apps is a platform to build an application in the cloud without the need to deploy, configure and maintain virtual machines. This introduction shows how to...
 
-- Create a Web App using a free tier plan
+- Create a web app with a free tier plan
 - Create its pre-requisites
-- Deploy a simple node js application sourced from GitHub 
+- Deploy a simple node js application sourced from a remote git repository 
 - Introduce Kudu Source Control Manager
 
 To complete the tutorial, you will need the following.
@@ -42,7 +42,7 @@ To complete the tutorial, you will need the following.
     location='ukwest'
     az group create --name $rg --location $location --verbose
     ```
-    Results should return details of the new group including allocated id and _provising state_ as _Succeeded_.
+    Results should include details of the new group including allocated id and _provising state_ as _Succeeded_.
     
     > To recall the details of the resource group.
     > ```
@@ -59,16 +59,13 @@ To complete the tutorial, you will need the following.
     > az group list --output table
     > ```
 
-1. Configure the Azure CLI to use default arguments.
+1. Configure the Azure CLI to use default arguments and confirm.
     
     ```shell
     az configure --defaults group=$rg location=$location
+    az configure --list-defaults --output table
     ```
-    From here on, subsequent commands can omit arguments for resource group and location.
-    > To list all defaults in configure
-    > ```
-    > az configure --list-defaults --output table
-    > ```
+    The configured defaults should include values for _group_ and _location_. From here on, subsequent <code>az</code> commands will omit arguments for <code>--resource-group</code> and <code>--location</code>.
 
 ## **Creation**
 
@@ -78,7 +75,9 @@ To complete the tutorial, you will need the following.
     planname='webapp-demo-asplan'
     az appservice plan create --name $planname --sku FREE --is-linux --verbose
     ```
-    Results should return details of the new service plan, including its Id, SKU details and provisioning state as _Succeeded_.
+    Results should include details of the new service plan, including its Id, SKU details and provisioning state as _Succeeded_.
+
+    > To create a service plan with the Windows platform, exclude <code>--is-linux</code>.
 
     > To recall the details of the plan.
     > ```
@@ -86,19 +85,19 @@ To complete the tutorial, you will need the following.
     > ```
 
     > The FREE SKU (Stock Keeping Unit) has the following limitations.
-    > - Uses _shared infrastructure_ with web apps from other accounts.
+    > - _Shares virtual machines_ with web apps from other accounts.
     > - _No deployment slots_ for a staging environment.
     > - _No custom domains_ so only {appname}.azurewebsite.net is possible.
     > - _No scaling out_ to multiple instances to allow load balancing.
 
 
-1. Create a web app using the service plan with a unique name and NodeJs runtime.
+1. Create a web app, with arguments including service plan, unique name and NodeJs runtime.
     
     ```shell
     appname="webapp-demo-app-$RANDOM"
     az webapp create --name $appname --plan $planname --runtime "node|12-lts" --verbose
     ```
-    Results should return details of the new web app.
+    Results should include details of the new web app.
 
     > To recall the details of the web app.
     > ```
@@ -115,12 +114,13 @@ To complete the tutorial, you will need the following.
     > az webapp list --output table
     > ```
 
-1. Add the app name as a default argument to Azure CLI.
+1. Add the app name as a default argument to Azure CLI and confirm.
     
     ```shell
     az configure --defaults web=$appname
+    az configure --list-defaults --output table
     ```
-    From here on, subsequent commands may omit the argument for the web app name.
+    The configured defaults should include a value for _web_. From here on, subsequent <code>az</code> commands will omit arguments for <code>--resource-group</code>, <code>--location</code> and <code>--name</code> (of web app).
 
 1. Open the web app and expect a placeholder page.
 
@@ -155,6 +155,8 @@ To complete the tutorial, you will need the following.
     ```
 
     Expect a page with a _Hello World_ message and a list of key-value pairs from the environment variables and the HTTP request.
+
+    Expect the stream to return a trail of the same _Hello World_ message.
 
 1. Refresh the browser and expect INFO trace messages from the log stream.
 
@@ -207,6 +209,7 @@ To complete the tutorial, you will need the following.
 
 ## **Further Reading**
 
-- [What is Kudu?](https://azure.microsoft.com/en-gb/resources/videos/what-is-kudu-with-david-ebbo/)
-- [Azure CLI configuration](https://docs.microsoft.com/en-us/cli/azure/azure-cli-configuration)
-- [App Service pricing](https://azure.microsoft.com/en-gb/pricing/details/app-service/windows/)
+- [What is Kudu?](https://azure.microsoft.com/en-gb/resources/videos/what-is-kudu-with-david-ebbo/){:target="_blank"}
+- [Azure CLI configuration](https://docs.microsoft.com/en-us/cli/azure/azure-cli-configuration){:target="_blank"}
+- [App Service pricing for Windows](https://azure.microsoft.com/en-gb/pricing/details/app-service/windows/){:target="_blank"}
+- [App Service pricing for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/windows/){:target="_blank"}
