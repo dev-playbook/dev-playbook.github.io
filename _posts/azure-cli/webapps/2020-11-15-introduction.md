@@ -25,7 +25,7 @@ To complete the tutorial, you will need the following.
 - Azure CLI installed
 - A personal Azure Account
 
-## **Pre-requisites**
+## **Preperations**
 
 1. Ensure that you are logged in to your Azure Account
 
@@ -67,7 +67,7 @@ To complete the tutorial, you will need the following.
     ```
     The configured defaults should include values for _group_ and _location_. From here on, subsequent <code>az</code> commands will omit arguments for <code>--resource-group</code> and <code>--location</code>.
 
-## **Creation**
+## **App Creation**
 
 1. Create an Azure App Service Plan with FREE pricing tier in the Linux platform
 
