@@ -10,14 +10,9 @@ permalink: azure-cli/webapps/introduction
 tags:
     - devops
     - paas
+description: Azure Web Apps is a platform to build an application in the cloud without the need to deploy, configure and maintain virtual machines. This introduction shows how to deploy a web app with a free tier plan, create the necessary resource group and app service plan, deploy a simple node js application sourced from a remote git repository, and introduce Kudu Source Control Manager.
 ---
-
-Azure Web Apps is a platform to build an application in the cloud without the need to deploy, configure and maintain virtual machines. This introduction shows how to...
-
-- Create a web app with a free tier plan
-- Create its pre-requisites
-- Deploy a simple node js application sourced from a remote git repository 
-- Introduce Kudu Source Control Manager
+{{page.description}}
 
 To complete the tutorial, you will need the following.
 

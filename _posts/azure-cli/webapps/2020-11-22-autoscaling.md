@@ -12,9 +12,28 @@ tags:
     - scaling
     - scaling out
     - autoscaling
+description: This tutorial shows how to configure autoscaling for Azure Web App to allow load-balancing with multiple instances.
 ---
+>tl;dr
+>```shell
+># create a monitor to the app service plan for autoscaling
+>az monitor autoscale create \
+>     --name $autoscalename \
+>     --resource $planname \
+>     --resource-type 'Microsoft.Web/serverfarms'  \
+>     --count 1 --min-count 1 --max-count 2 \
+>     --email-administrator true
+>
+># add an autoscaling rule to the monitor
+>az monitor autoscale rule create \
+>     --autoscale-name $autoscalename \
+>     --profile-name default \
+>     --condition "CpuPercentage >= 75 avg 10m" \
+>     --scale out 1
+>```
 
-This tutorial shows how to configure autoscaling for Azure Web App to allow load-balancing with multiple instances. **Note that the process requires upgrading to the chargeable [Standard Service Plan for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/linux/){:target="_blank"}**.
+## **Introduction**
+{{page.description}} **Note that the process requires upgrading to the chargeable [Standard Service Plan for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/linux/){:target="_blank"}**.
 
 To complete the tutorial, you will need the following.
 
@@ -68,7 +87,7 @@ To complete the tutorial, you will need the following.
     > - _Traffic Manager_ to control request distribution.
     > - _Auto-scale_ up to 10 instances.
 
-1. Create an autoscale monitor to the app service plan that configures the instance capacities.
+1. Create an autoscale monitor for the app service plan that configures the instance capacities.
 
     ```shell
     autoscalename=webapp-demo-asplan-autoscale
