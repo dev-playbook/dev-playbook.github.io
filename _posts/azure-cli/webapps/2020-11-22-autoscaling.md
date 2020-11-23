@@ -50,7 +50,7 @@ To complete the tutorial, you will need the following.
     az configure --list-defaults --output table
     ```
 
-1. Ensure that variable $appname and $plannname has the value of the web app's name
+1. Ensure that bash variables <code>appname</code> and <code>plannname</code> has the value of the web app's name and the app service plan name.
 
     ```shell
     [[ -z "$appname" ]] && appname=$(az webapp show --query "name" | sed -e 's/["\r ]//g')
