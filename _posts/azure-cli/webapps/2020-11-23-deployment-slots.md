@@ -10,7 +10,7 @@ permalink: azure-cli/webapps/deployment-slots
 tags: 
     - devops
     - deployment slots
-description: Deploying web apps allows you the option to use separate deployment slots instead of just a singular  production environment. Slots, including production, can swap application content and configurations while maintaining their separate host names. 
+description: Deploying web apps allows you the option to use separate deployment slots instead of just a singular  production environment. Slots, including production, can swap application content and configurations while maintaining their separate hostnames. 
 ---
 >tl;dr
 >```shell
@@ -183,7 +183,6 @@ Note that the environment where the site is running is considered to be the defa
     password=$(az webapp deployment list-publishing-credentials --slot $staging --query publishingPassword | sed -e 's/["\r ]//g')
     echo $password
     ```
-    The username and password are extracted to variables for later use.
 
     >Alternatively, you can use <u>user-level credentials</u> are directly tied to your Microsoft Account. This is global to all your Azure Web Apps and you only need to set this once. However, the <u>username has to be globally unique to all accounts in Azure</u>. You create or reset the user credentials by executing the following with the appropriate _{username}_ and _{password}_.
     >```
@@ -376,5 +375,5 @@ Note that the environment where the site is running is considered to be the defa
 
 ## **Further Reading**
 
-- [Azure Monitor overview](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)
+- [Create an App Service app and deploy code to a staging environment using Azure CLI](https://docs.microsoft.com/en-us/azure/app-service/scripts/cli-deploy-staging-environment)
 - [App Service pricing for windows](https://azure.microsoft.com/en-gb/pricing/details/app-service/windows/){:target="_blank"}
