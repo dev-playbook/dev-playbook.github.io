@@ -16,10 +16,13 @@ description: This tutorial shows how to manually configure an Azure Web App to l
 >tl;dr
 ```shell
 # update app service plane to 2 worker instance
-az appservice plan update --ids $planId --number-of-workers 2
+az appservice plan update -g {group name} \
+        --name {appservice plan name} \
+        --number-of-workers {instance count}
 ```
 
 ## **Introduction**
+
 {{ page.description }} **Note that the process requires upgrading to the chargeable [Basic Service Plan for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/linux/){:target="_blank"}**.
 
 To complete the tutorial, you will need the following.

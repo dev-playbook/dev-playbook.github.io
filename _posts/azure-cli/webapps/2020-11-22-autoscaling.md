@@ -18,22 +18,23 @@ description: This tutorial shows how to configure autoscaling for Azure Web App 
 >```shell
 ># create a monitor to the app service plan for autoscaling
 >az monitor autoscale create \
->     --name $autoscalename \
->     --resource $planname \
->     --resource-type 'Microsoft.Web/serverfarms'  \
->     --count 1 --min-count 1 --max-count 2 \
->     --email-administrator true
+>       --name {autoscale name} \
+>       --resource {appservice plan name} \
+>       --resource-type 'Microsoft.Web/serverfarms'  \
+>       --count {default count} --min-count {min} --max-count {max} \
+>       --email-administrator {true|false}
 >
 ># add an autoscaling rule to the monitor
 >az monitor autoscale rule create \
->     --autoscale-name $autoscalename \
->     --profile-name default \
->     --condition "CpuPercentage >= 75 avg 10m" \
->     --scale out 1
+>       --autoscale-name {autoscale name} \
+>       --profile-name default \
+>       --condition {scale rule} \ # e.g "CpuPercentage >= 75 avg 10m"
+>       --scale {in|out} {instance count}
 >```
 
 ## **Introduction**
-{{page.description}} **Note that the process requires upgrading to the chargeable [Standard Service Plan for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/linux/){:target="_blank"}**.
+
+{{page.description}} **Note that the process requires use of the chargeable [Standard Service Plan for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/linux/){:target="_blank"}**.
 
 To complete the tutorial, you will need the following.
 
@@ -41,31 +42,16 @@ To complete the tutorial, you will need the following.
 - Azure CLI installed
 - A personal Azure Account
 
-## **Preperations**
+## **Prepare**
+{%include az-cli/005-login-account.md%}
+{% include az-cli/010-create-resource-group.md %}
 
-1. Complete the _[introductory tutorial]({% link _posts/azure-cli/webapps/2020-11-15-introduction.md %})_ excluding Clean Up.
+## **Create Autoscaling Web App**
 
-1. Confirm the default arguments to <code>az</code> command for _group_ and _web_ are configured.
-    ```shell
-    az configure --list-defaults --output table
-    ```
+{% include az-cli/020-create-app-service.md sku="S1"%}
 
-1. Ensure that bash variables <code>appname</code> and <code>plannname</code> has the value of the web app's name and the app service plan name.
+    Standard is the minimum tier for autoscaling.
 
-    ```shell
-    [[ -z "$appname" ]] && appname=$(az webapp show --query "name" | sed -e 's/["\r ]//g')
-    
-    planId=$(az webapp show --query appServicePlanId | sed -e 's/["\r ]//g')
-    [[ -z "$planname" ]] && planname=$(az appservice plan show --ids $planId --query name | sed -e 's/["\r ]//g')
-    ```
-
-## **Autoscaling**
-
-1. Upgrade the app service plan to S1 SKU.
-
-    ```shell
-    az appservice plan update --name $planname --sku S1 --number-or-workers 1
-    ```
     Expect the resulting payload to include the following in the <code>SKU</code> section confirming the _scaling-up_ to S1 and a capacity of just 1 worker instance.
     ```json
     {
@@ -79,13 +65,8 @@ To complete the tutorial, you will need the following.
         "tier": "Standard"
     }
     ```
-    We have scale up to Standard tier S1 SKU as this is the minimum tier available for autoscaling.
-    > Standard a is production-grade tier for low traffic requirements. It has the following features.
-    > - Uses _dedicated virtual machines_ allowing scaling out to multiple instances.
-    > - Allows for _customised domains_ and the use of _ssl certificates_
-    > - _Deployment slots_ for up to 5 environments.
-    > - _Traffic Manager_ to control request distribution.
-    > - _Auto-scale_ up to 10 instances.
+
+{% include az-cli/030-create-webapp-nodejs.md %}
 
 1. Create an autoscale monitor for the app service plan that configures the instance capacities.
 
@@ -116,9 +97,9 @@ To complete the tutorial, you will need the following.
         }
     ]
     ```
-    Note that the <code>--email-administrator</code> clause has been included. Consequently, you will receive a message to an email address registered on your subscription whenever the capacity has been raised to 2 instances from 1 instance.
+    Note that the <code>--email-administrator</code> clause has been included. Consequently, you will receive a message to an email address registered on your subscription whenever the capacity has been raised or lowered.
 
-    Finally, note the message <code>'Follow up with `az monitor autoscale rule create` to add scaling rules.'</code>
+    Finally, note the message <code>'Follow up with `az monitor autoscale rule create` to add scaling rules'</code>. This is to be done next.
 
 1. Add autoscale rules to raise the instance count by 1 when Bytes Received 1-minute average goes over 9999, and lower the instance count by 1 when Bytes Received 2-minute average goes to zero respectively.
 
@@ -137,7 +118,8 @@ To complete the tutorial, you will need the following.
     ```
     >Note the <code>BytesReceived</code> is the metric employed. To list all available metrics you can employ to monitor your app service plan, execute either of the following.
     > ```
-    > az monitor metrics list-definitions --resource $planname --resource-type 'Microsoft.Web/serverfarms' --output table
+    > az monitor metrics list-definitions --resource $planname \
+    >       --resource-type 'Microsoft.Web/serverfarms' --output table
     >
     > az monitor metrics list-definitions --resource $planId --output table
     > ```
@@ -147,7 +129,7 @@ To complete the tutorial, you will need the following.
     ```shell
     az monitor autoscale show --name $autoscalename
     ```
-    Expect a similar profiles section below.
+    Expect a similar <code>profiles</code> section below.
     ```json
     "profiles": [
         {
@@ -206,8 +188,7 @@ To complete the tutorial, you will need the following.
         }
     ]
     ```
-    Note that cooldown defaults to 05:00. This means that 5 minutes must elapse before the next scaling event can occur.
-    > This can be overriden by specifying the <code>--cooldown</code> parameter.
+    Note that cooldown defaults to <code>05:00</code> minutes, which is the time that elapse before the next scaling event occurs. This can be overridden by passing an argument to the <code>--cooldown</code> parameter.
 
 1. Start a new command-line session and start traffic to the site.
 
@@ -229,16 +210,17 @@ To complete the tutorial, you will need the following.
     ```
     Wait for around 5 minutes and expect the log tails to say that a new docker container is created.
 
-    Shut down the site traffic.
+    Shut down the site traffic by pressing _Ctrl-C_.
 
-    Wait for around 5 minutes. _DO NOT expect the log tails to say that a docker container was removed_.
+    Wait for another 5 minutes. _DO NOT expect the log tails to say that a docker container was removed_.
 
 1. Confirm autoscaling had occurred.
 
     ```shell
-    az monitor activity-log list --output table --caller Microsoft.Insights/autoscaleSettings
+    az monitor activity-log list --output table \
+            --caller Microsoft.Insights/autoscaleSettings
     ```
-    Ignoring any duplications, expect 4 entries with the following descriptions.
+    Ignoring duplicate entries, expect 4 entries with the following descriptions.
 
     ```shell
     The autoscale operation to scale resource '{appsevice plan id}' from 2 instances count to 1 instances count completed successfully.
@@ -248,22 +230,18 @@ To complete the tutorial, you will need the following.
     ```
     From the activity logs, you can see that the instance counts went from 1 to 2 and back to 1.
 
-    Check also your account email for notifications from Azure Monitor stating the capacity had been raised and lowered.
+    Also, check your account email for notifications from Azure Monitor stating the capacity had been raised and lowered.
 
 1. View the number of bytes received to the site
 
     ```shell
     az monitor metrics list --resource $planId --output table --metric BytesReceived
     ```
-    Confirm the bytes recieved coincide with the autoscaling events.
+    Confirm the bytes received coincide with the autoscaling events.
 
 ## **Clean up**
 
-1. Delete all resources created in the group, including the web app and app service.
-
-    ```shell
-    az group delete --yes
-    ```
+{% include az-cli/999-cleanup.md %}
     >To delete the autoscaling.
     >```
     >az monitor autoscale delete --name $autoscalename

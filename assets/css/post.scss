@@ -118,6 +118,13 @@ $prompt-newer: "{{ site.data.label.post.button.next }}";
   }
 } // .post-navigation
 
+// foo bar qux
+.post-content {
+  .post-navigation {
+    padding-bottom: 0rem;
+  }
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;

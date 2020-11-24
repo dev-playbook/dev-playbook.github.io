@@ -15,25 +15,31 @@ description: Deploying web apps allows you the option to use separate deployment
 >tl;dr
 >```shell
 ># set application settings for both environment and slot
->az webapp config appsettings set --slot $slotName
->    --settings {key}={value} \
->    --slot-settings {key}={value}
+>az webapp config appsettings set -n {app name} -g {group name} \
+>       --slot {slot name}
+>       --settings {key}={value} \
+>       --slot-settings {key}={value}
 >
 ># create a slot for the web app
->az webapp deployment slot create --name $appname --slot $slotname
+>az webapp deployment slot create -n {app name} -g {group name} \
+>       --slot {slot name}
 >
 ># preview the swap to production in staging
->az webapp deployment slot swap --name $appname --slot $slotname \
->   --action preview
+>az webapp deployment slot swap -n {app name} -g {group name} \
+>       --slot {slot name} \
+>       --action preview
 >
 ># swap manually
->az webapp deployment slot swap --name $appname --slot $slotname
+>az webapp deployment slot swap -n {app name} -g {group name} \
+>       --slot {slot name}
 >
 ># auto swap
->az webapp deployment slot auto-swap --name $appname --slot $slotname
+>az webapp deployment slot auto-swap -n {app name} -g {group name} \
+>   --slot {slot name}
 >```
 
 ## **Introduction**
+
 {{page.description}} 
 
 Deploying using slots has the following benefits:
@@ -51,7 +57,7 @@ To complete the tutorial, you will need the following.
 - Azure CLI installed
 - A personal Azure Account
 
-## **Preperations**
+## **Prepare**
 
 1. Complete the _[Azure Local Git tutorial]({% link _posts/azure-cli/webapps/2020-11-17-local-git.md %})_ excluding Clean Up.
 
@@ -70,15 +76,9 @@ To complete the tutorial, you will need the following.
 
 Note that the environment where the site is running is considered to be the default or **production slot**.
 
-1. Upgrade the app service plan to S1 SKU.
+{% include az-cli/022-upgrade-app-service.md sku="S1"%}
 
-    ```shell
-    planId=$(az webapp show --query appServicePlanId | sed -e s/\"//g)
-    az appservice plan update --ids $planId --sku S1
-    ```
-    Expect the results to specify an <code>S1</code> size and <code>Standard</code> tier in the <code>SKU</code> section.
-
-    <code>S1</code> is the minimum SKU required for deployment slots.
+    Standard is minimum tier required for deployment slots.
 
 1. Set the application settings _EnvironmentId_ and _DatabaseConnection_.
 
@@ -174,20 +174,7 @@ Note that the environment where the site is running is considered to be the defa
 
 ## **Staging Version 3**
 
-1. Get the site-level credentials for deployment to the **staging slot**.
-
-    ```shell
-    username=$(az webapp deployment list-publishing-credentials --slot $staging --query publishingUserName | sed -e 's/["\r ]//g')
-    echo $username
-
-    password=$(az webapp deployment list-publishing-credentials --slot $staging --query publishingPassword | sed -e 's/["\r ]//g')
-    echo $password
-    ```
-
-    >Alternatively, you can use <u>user-level credentials</u> are directly tied to your Microsoft Account. This is global to all your Azure Web Apps and you only need to set this once. However, the <u>username has to be globally unique to all accounts in Azure</u>. You create or reset the user credentials by executing the following with the appropriate _{username}_ and _{password}_.
-    >```
-    >az webapp deployment user set --user-name '{username}' --password '{password}'
-    >```
+{% include az-cli/070-get-site-level-creds.md slot="staging" %}
 
 1. From the <code>nodejs-env-request-vars</code> repository created in [Azure Local Git tutorial]({% link _posts/azure-cli/webapps/2020-11-17-local-git.md %}), detach the production's remote git repository and attach it to the staging's remote git repository.
 
@@ -199,8 +186,10 @@ Note that the environment where the site is running is considered to be the defa
 
     git remote add origin $repoUrl
     ```
-    Note the site-credentials are included in the repository Url.
-    >The remote repository is provided by the [Kudu Source Control Manager](https://azure.microsoft.com/en-gb/resources/videos/what-is-kudu-with-david-ebbo/). Excluding the username and password from the Url will result in the command line asking for your credentials.
+    
+    Note the site-credentials are included in the repository Url. Excluding the username and password from the Url will result in the command line asking for your credentials.
+
+    >The remote repository is provided by the [Kudu Source Control Manager](https://azure.microsoft.com/en-gb/resources/videos/what-is-kudu-with-david-ebbo/).
 
 1. Execute the following to change the header message of the NodeJS app to **Version 3**.
 
@@ -281,7 +270,7 @@ Note that the environment where the site is running is considered to be the defa
 
     Note that the header messages and environment ids values have swapped between slots but the database connection values are maintained.
 
-## **Automated Swap**
+## **Deploying Version 4 to Production with Autoswap**
 
 1. Set staging to auto-swap with the production slot.
 
@@ -332,13 +321,13 @@ Note that the environment where the site is running is considered to be the defa
 
 ## **Activity log**
 
-1. Extract the logged activities of the <code>SlotSwapJobProcessor</code> and save it to file.
+1. Extract the logged activities by <code>SlotSwapJobProcessor</code> and save it to file.
 
     ```shell
     az monitor activity-log list --caller SlotSwapJobProcessor --output table > activity-log.txt
     ```
 
-1. Open the file and expect the following entries logged throughout this tutorial.
+1. Open file <code>activity-log.txt</code> and expect the following entries logged throughout this tutorial.
 
     ```
     Finished swapping site. New state is (Slot: 'staging', DeploymentId:'{preceeding-deployment}'), (Slot: 'Production', DeploymentId:'{succeeding-deployment}')'.
@@ -347,23 +336,19 @@ Note that the environment where the site is running is considered to be the defa
     Applied configuration settings from slot 'Production' to a site with deployment id '{succeeding-deployment}' in slot 'staging'
     ```
 
-    These log entries, read from bottom to top, would be typical of a successful manual swap and auto-swap. For preview swaps, only the first entry is expected.
+    Read from bottom to top, these log entries are expected from successful swaps and auto-swaps. For preview swaps, only the first\bottom entry is expected.
     
     The process starts by applying the values in <code>--settings</code> from production to the _succeeding deployment_ in staging.
 
-    Prior to the swap, it reports that the _succeeding deployment_ is in staging, while the _preceeding deployment_ is in production.
+    From '<code>Initial state</code>', it reports that the _succeeding deployment_ is in staging, while the _preceeding deployment_ is in production.
     
-    The process then warms the _succeeding deployment_ and then the swap occurs.
+    The process then '<code>Finished warming</code>' the _succeeding deployment_ and then the swap occurs.
 
-    When concluded, it reports that the _succeeding deployment_ is in production and the _preceeding deployment_ is in staging.
+    When concluded, it reports '<code>Finished swapping site</code>' and the _succeeding deployment_ is in production and the _preceeding deployment_ is in staging.
 
 ## **Clean up**
 
-1. Delete all resources created in the group, including the web app and app service.
-
-    ```shell
-    az group delete --yes
-    ```
+{% include az-cli/999-cleanup.md %}
     >To delete the autoscaling.
     >```
     >az monitor autoscale delete --name $autoscalename

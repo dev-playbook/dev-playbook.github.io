@@ -12,32 +12,16 @@ tags:
     - paas
 description: Azure Web Apps is a platform to build an application in the cloud without the need to deploy, configure and maintain virtual machines. This introduction shows how to deploy a web app with a free tier plan, create the necessary resource group and app service plan, deploy a simple node js application sourced from a remote git repository, and introduce Kudu Source Control Manager.
 ---
+
+## **Introduction**
+
 {{page.description}}
 
-To complete the tutorial, you will need the following.
+{%include az-cli/000-prerequisites.md%}
 
-- bash terminal
-- Azure CLI installed
-- A personal Azure Account
-
-## **Preperations**
-
-1. Ensure that you are logged in to your Azure Account
-
-    ```shell
-    az account show
-    # if not, login
-    az login
-    ```
-
-1. Create a resource group in West UK where the web app will be deployed.
-
-    ```shell
-    rg='webapp-demo-rg'
-    location='ukwest'
-    az group create --name $rg --location $location --verbose
-    ```
-    Results should include details of the new group including allocated id and _provising state_ as _Succeeded_.
+## **Prepare**
+{%include az-cli/005-login-account.md%}
+{% include az-cli/010-create-resource-group.md %}
     
     > To recall the details of the resource group.
     > ```
@@ -54,23 +38,9 @@ To complete the tutorial, you will need the following.
     > az group list --output table
     > ```
 
-1. Configure the Azure CLI to use default arguments and confirm.
-    
-    ```shell
-    az configure --defaults group=$rg location=$location
-    az configure --list-defaults --output table
-    ```
-    The configured defaults should include values for _group_ and _location_. From here on, subsequent <code>az</code> commands will omit arguments for <code>--resource-group</code> and <code>--location</code>.
+## **Create Web App**
 
-## **App Creation**
-
-1. Create an Azure App Service Plan with FREE pricing tier in the Linux platform
-
-    ```shell
-    planname='webapp-demo-asplan'
-    az appservice plan create --name $planname --sku FREE --is-linux --verbose
-    ```
-    Results should include details of the new service plan, including its Id, SKU details and provisioning state as _Succeeded_.
+{% include az-cli/020-create-app-service.md sku="F1" %}
 
     > To create a service plan with the Windows platform, exclude <code>--is-linux</code>.
 
@@ -79,27 +49,14 @@ To complete the tutorial, you will need the following.
     > az appservice plan show --name $planname
     > ```
 
-    > The FREE SKU (Stock Keeping Unit) has the following limitations.
-    > - _Shares virtual machines_ with web apps from other accounts.
-    > - _No deployment slots_ for a staging environment.
-    > - _No custom domains_ so only {appname}.azurewebsite.net is possible.
-    > - _No scaling out_ to multiple instances to allow load balancing.
-
-
-1. Create a web app, with arguments including service plan, unique name and NodeJs runtime.
-    
-    ```shell
-    appname="webapp-demo-app-$RANDOM"
-    az webapp create --name $appname --plan $planname --runtime "node|12-lts" --verbose
-    ```
-    Results should include details of the new web app.
+{% include az-cli/030-create-webapp-nodejs.md%}
 
     > To recall the details of the web app.
     > ```
     > az webapp show --name $appname
     > ```
 
-    > To list all available runtimes to find alternatives.
+    > To list all available runtimes and find alternatives.
     > ```
     > az webapp list-runtimes
     > ```
@@ -109,21 +66,11 @@ To complete the tutorial, you will need the following.
     > az webapp list --output table
     > ```
 
-1. Add the app name as a default argument to Azure CLI and confirm.
-    
-    ```shell
-    az configure --defaults web=$appname
-    az configure --list-defaults --output table
-    ```
-    The configured defaults should include a value for _web_. From here on, subsequent <code>az</code> commands will omit arguments for <code>--resource-group</code>, <code>--location</code> and <code>--name</code> (of web app).
+{% include az-cli/040-browse-webapp.md %}
 
-1. Open the web app and expect a placeholder page.
+    Expect to see a placeholder page for NodeJS apps.
 
-    ```shell
-    az webapp browse
-    ```
-
-## **Source Deployment**
+## **Deploy Source**
 
 1. Configure the source of the deployment to the _main_ branch of a GitHub repository.
 
@@ -132,7 +79,7 @@ To complete the tutorial, you will need the following.
     az webapp deployment source config --repo-url $repourl --branch main --manual-integration --verbose
     ```
 
-    The source contains a small NodeJs application. The results should include details of the deployment source, including the repository Url and branch name.
+    The source contains a small NodeJs application. The results should include details of the deployment source, including the value of <code>repourl</code> as the repository Url and <code>main</code> as the branch name.
     
     > To recall details of the deployment source configuration.
     > ```
@@ -141,19 +88,13 @@ To complete the tutorial, you will need the following.
 
     The <code>--manual-integration</code> specifies no continuous deployment of source changes as this requires further setup and is out of scope.
 
-## **Testing**
+## **Test**
 
-1. Open the site with the deployed source and stream the server logs.
-
-    ```shell
-    az webapp browse --log
-    ```
+{% include az-cli/041-browse-webapp-stream-logs.md %}
 
     Expect a page with a _Hello World_ message and a list of key-value pairs from the environment variables and the HTTP request.
 
-    Expect the stream to return a trail of the same _Hello World_ message.
-
-1. Refresh the browser and expect INFO trace messages from the log stream.
+    Also expect the stream to return INFO traces of the same _Hello World_ message. Refresh the browser a couple of times to see the repeated traces.
 
     > Alternatively, you can stream the server logs as follows.
     > ```
@@ -164,21 +105,17 @@ To complete the tutorial, you will need the following.
     > xdg-open https://$appname.scm.azurewebsites.net/api/logstream
     > ```
 
-1. Open Kudu portal
+{% include az-cli/050-browse-kudu.md %}
 
-    ```shell
-    xdg-open https://$appname.scm.azurewebsites.net
-    ```
+    Kudu is the Source Control Manager integrated to Azure Web Apps. It automates deployments and provides features such as access to site settings, logs, file access, secure shell, remote git repository and so on.
 
-    Kudu is the Source Control Manager integrated to Web Apps. It automates deployments and provides tools to manage the site such as access to settings, logs, files, secure shell, and so on.
-
-1. Navigate to the Environment page
+1. Navigate to the Environment page in Kudu.
 
     ```shell
     xdg-open https://$appname.scm.azurewebsites.net/Env
     ```
 
-    From here you can see all the environment settings accessible by the site, including Environment Variables. Key to note are as follows:
+    From here you can see all the environment settings accessible by the site, including Environment Variables. Keys-Values to note are as follows:
 
     - <code>WEBSITE_SITE_NAME</code> - The name of the site.
     - <code>WEBSITE_SKU</code> - The sku of the site (Possible values: Free, Shared, Basic, Standard).
@@ -191,16 +128,7 @@ To complete the tutorial, you will need the following.
 
 ## **Clean up**
 
-1. Delete all resources created in the group, including the web app and app service.
-
-    ```shell
-    az group delete --yes
-    ```
-
-    > To delete just the web app and the app service.
-    > ```
-    > az webapp delete
-    > ```
+{% include az-cli/999-cleanup.md%}
 
 ## **Further Reading**
 
