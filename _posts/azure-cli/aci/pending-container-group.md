@@ -92,7 +92,7 @@ description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendiss
 
     > When naming the container registry, Microsoft suggests using lowercased names to avoid authentication errors using the server url in docker commands.
 
-    Also, defaults for _acr_ has been added to Azure cli. From here on, subsequent <code>az</code> commands will omit arguments to <code>--name</code> (of registry).
+    Also, defaults for _acr_ has been added to Azure cli. From here on, subsequent `az` commands will omit arguments to <code>--name</code> (of registry).
 
     >Basic SKU is blah blah blah
     >Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dapibus sem erat, vitae faucibus nibh hendrerit id. Nunc lacinia semper nibh, ut cursus diam convallis eget. Integer luctus feugiat posuere. Proin ultricies a nisi a fermentum. Curabitur sem arcu, scelerisque mollis nibh sit amet, volutpat volutpat ante.

@@ -1,6 +1,6 @@
 ---
 title: Azure Web Apps and Deployment Slots
-index: 50
+index: 60
 layout: post
 date: 2020-11-23 15:00
 categories: 
@@ -61,7 +61,7 @@ To complete the tutorial, you will need the following.
 
 1. Complete the _[Azure Local Git tutorial]({% link _posts/azure-cli/webapps/2020-11-17-local-git.md %})_ excluding Clean Up.
 
-1. Confirm the default arguments to <code>az</code> command for _group_ and _web_ are configured.
+1. Confirm the default arguments to `az` command for _group_ and _web_ are configured.
     ```shell
     az configure --list-defaults --output table
     ```

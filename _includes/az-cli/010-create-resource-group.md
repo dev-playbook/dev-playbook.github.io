@@ -18,4 +18,4 @@
     ```
     Results should include details of the new group including allocated id and _provising state_ as _Succeeded_.
     
-    Also, defaults for _group_ and _location_ have been added to Azure cli. From here on, subsequent <code>az</code> commands will omit arguments to <code>--resource-group</code> and <code>--location</code>.
+    Also, defaults for _group_ and _location_ have been added to Azure cli. From here on, subsequent `az` commands will omit arguments to <code>--resource-group</code> and <code>--location</code>.

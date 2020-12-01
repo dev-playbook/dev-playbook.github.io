@@ -1,6 +1,6 @@
 ---
 title: Scaling Out Azure Web Apps (Manually)
-index: 40
+index: 45
 layout: post
 date: 2020-11-19 19:00
 categories: 
@@ -54,7 +54,7 @@ To complete the tutorial, you will need the following.
     }
     ```
 
-1. Confirm the default arguments to <code>az</code> command for _group_ and _web_ are configured.
+1. Confirm the default arguments to `az` command for _group_ and _web_ are configured.
     ```shell
     az configure --list-defaults --output table
     ```
@@ -62,7 +62,7 @@ To complete the tutorial, you will need the following.
 1. Ensure that variable $appname has the value of the web app's name.
 
     ```shell
-    [[ -z "$appname" ]] && appname=$(az webapp show --query "name" | sed -e s/\"//g)
+    [[ -z "$appname" ]] && appname=$(az webapp show --query "name" --output tsv | sed -E "s/\r//g")
     ```
 
 ## **Scaling Out**

@@ -11,4 +11,4 @@
 
     The name is randomised to ensure a unique hostname (i.e {name}.azurewebsites.net).
 
-    Also, defaults for _web_ has been added to Azure cli. From here on, subsequent <code>az</code> commands will omit arguments to <code>--name</code> (of web app).
+    Also, defaults for _web_ has been added to Azure cli. From here on, subsequent `az` commands will omit arguments to <code>--name</code> (of web app).

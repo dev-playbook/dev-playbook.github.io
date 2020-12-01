@@ -1,6 +1,6 @@
 ---
 title: Azure Web Apps and Docker Compose YAML
-index: 50
+index: 70
 layout: post
 date: 2020-11-24 09:00
 categories: 
@@ -24,7 +24,7 @@ description: Azure allows deployment of worker instances from a docker-compose s
 
 ## **Introduction**
 
-{{page.description}} **Note that the process requires the chargeable [Basic Service Plan for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/linux/){:target="_blank"}**.
+{{page.description}} **Note that this tutorial will be using the [Basic Service Plan for Linux](https://azure.microsoft.com/en-gb/pricing/details/app-service/linux/){:target="_blank"}**.
 
 {% include az-cli/000-prerequisites.md %}
 
@@ -88,7 +88,7 @@ description: Azure allows deployment of worker instances from a docker-compose s
     az configure --defaults web=$appname
     ```
 
-    Note that the webapp name is added to the configured defaults for the azure cli. From here on, subsequent <code>az</code> commands will omit argument for <code>--name</code> (of web app).
+    Note that the webapp name is added to the configured defaults for the azure cli. From here on, subsequent `az` commands will omit argument for <code>--name</code> (of web app).
 
 {% include az-cli/040-browse-webapp.md %}
 
