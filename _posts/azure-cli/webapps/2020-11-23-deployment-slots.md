@@ -360,5 +360,5 @@ Note that the environment where the site is running is considered to be the defa
 
 ## **Further Reading**
 
-- [Create an App Service app and deploy code to a staging environment using Azure CLI](https://docs.microsoft.com/en-us/azure/app-service/scripts/cli-deploy-staging-environment)
+- [Create an App Service app and deploy code to a staging environment using Azure CLI](https://docs.microsoft.com/en-us/azure/app-service/scripts/cli-deploy-staging-environment){:target="_blank"}
 - [App Service pricing for windows](https://azure.microsoft.com/en-gb/pricing/details/app-service/windows/){:target="_blank"}

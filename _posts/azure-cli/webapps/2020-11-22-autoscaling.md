@@ -253,5 +253,5 @@ To complete the tutorial, you will need the following.
 
 ## **Further Reading**
 
-- [Azure Monitor overview](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)
+- [Azure Monitor overview](https://docs.microsoft.com/en-us/azure/azure-monitor/overview){:target="_blank"}
 - [App Service pricing for windows](https://azure.microsoft.com/en-gb/pricing/details/app-service/windows/){:target="_blank"}
